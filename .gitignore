@@ -1,0 +1,15 @@
+.superpowers/
+.dart_tool/
+build/
+.idea/
+*.iml
+android/local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/Podfile.lock
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Pods/
+macos/Podfile.lock
+ohos/local.properties
+ohos/package-lock.json

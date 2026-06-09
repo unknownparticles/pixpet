@@ -5,6 +5,7 @@ import '../../domain/focus_stats.dart';
 import '../../domain/pet_profile.dart';
 import '../../domain/reward_ledger.dart';
 import '../../domain/shop.dart';
+import '../../domain/starter_pet.dart';
 import '../../widgets/pixel_pet.dart';
 
 /// Focus Pet demo 主界面。
@@ -12,31 +13,24 @@ import '../../widgets/pixel_pet.dart';
 /// 为了让 demo 一打开就能体验完整闭环，首版把引导、计时、宠物成长、
 /// 统计和分享卡放在同一个可滚动页面里。
 class FocusPetHomePage extends StatefulWidget {
-  const FocusPetHomePage({super.key});
+  const FocusPetHomePage({
+    super.key,
+    required this.initialPet,
+  });
+
+  final StarterPet initialPet;
 
   @override
   State<FocusPetHomePage> createState() => _FocusPetHomePageState();
 }
 
 class _FocusPetHomePageState extends State<FocusPetHomePage> {
-  static const List<_StarterPet> _starterPets = <_StarterPet>[
-    _StarterPet(id: 'sprout', name: '芽芽', trait: '适合晨读和背单词'),
-    _StarterPet(id: 'bean', name: '豆豆', trait: '适合刷题和冲刺'),
-    _StarterPet(id: 'mochi', name: '糯糯', trait: '适合晚间复盘'),
-  ];
   static const List<int> _durations = <int>[15, 25, 45, 60];
 
   final RewardLedger _rewardLedger = const RewardLedger();
   final ShopService _shopService = const ShopService();
 
-  late PetProfile _pet = const PetProfile(
-    petId: 'sprout',
-    name: '芽芽',
-    level: 1,
-    energy: 0,
-    mood: PetMood.waiting,
-    decoration: '空书桌',
-  );
+  late PetProfile _pet = _initialProfile(widget.initialPet);
   FocusStats _stats = const FocusStats(
     todayMinutes: 0,
     weekMinutes: 0,
@@ -51,21 +45,40 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
   bool _soundEnabled = false;
   String _message = '选择一只宠物，开始第一段 soft-focus 学习。';
 
+  static PetProfile _initialProfile(StarterPet pet) {
+    return PetProfile(
+      petId: pet.id,
+      name: pet.name,
+      level: 1,
+      energy: 0,
+      mood: PetMood.waiting,
+      decoration: '软垫小窝',
+      ownedPetIds: <String>[pet.id],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: <Widget>[
-            SliverToBoxAdapter(child: _buildHeader(context)),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-              sliver: SliverList.list(children: _currentTabChildren(context)),
-            ),
-          ],
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFF3D8),
+          ),
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverToBoxAdapter(child: _buildHeader(context)),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                sliver: SliverList.list(children: _currentTabChildren(context)),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavigationBar(
+        backgroundColor: const Color(0xFFFFFAF0),
+        indicatorColor: const Color(0xFFFFD8A8),
         selectedIndex: _selectedTab,
         onDestinationSelected: (index) => setState(() => _selectedTab = index),
         destinations: const <NavigationDestination>[
@@ -102,8 +115,6 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
         return <Widget>[
           _buildPetCard(context),
           const SizedBox(height: 16),
-          _buildStarterPets(context),
-          const SizedBox(height: 16),
           _buildFocusPanel(context),
           const SizedBox(height: 16),
           _buildStatsGrid(context),
@@ -123,7 +134,7 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
             'Focus Pet',
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1B433B),
+                  color: const Color(0xFF3B2F2A),
                 ),
           ),
           const SizedBox(height: 8),
@@ -144,24 +155,46 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
     return _Panel(
       child: Column(
         children: <Widget>[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E8),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE7D8B2)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: PixelPet(
-                    petId: _pet.petId,
-                    mood: _pet.mood.name,
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFE8B8),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFFFC57A), width: 2),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              child: Column(
+                children: <Widget>[
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7E8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: PixelPet(
+                        petId: _pet.petId,
+                        mood: _pet.mood.name,
+                        size: 156,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 12,
+                    width: 180,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFC97B4E),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: <Widget>[
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,30 +202,30 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
                     Text(
                       _pet.name,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFF3B2F2A),
                           ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text('Lv.${_pet.level} · ${_pet.mood.label}'),
-                    const SizedBox(height: 10),
-                    LinearProgressIndicator(
-                      value: (_pet.energy % RewardLedger.energyPerLevel) /
-                          RewardLedger.energyPerLevel,
-                      minHeight: 10,
-                      borderRadius: BorderRadius.circular(6),
-                      backgroundColor: const Color(0xFFE8DED0),
-                      color: const Color(0xFF2E7D6F),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      remaining == 0
-                          ? '已经可以升级，完成下一次专注会刷新奖励。'
-                          : '距离下一级还差 $remaining 能量',
-                    ),
                   ],
                 ),
               ),
+              Chip(label: Text('${_pet.energy} 能量')),
             ],
+          ),
+          const SizedBox(height: 10),
+          LinearProgressIndicator(
+            value: (_pet.energy % RewardLedger.energyPerLevel) /
+                RewardLedger.energyPerLevel,
+            minHeight: 12,
+            borderRadius: BorderRadius.circular(6),
+            backgroundColor: const Color(0xFFFFE4C7),
+            color: const Color(0xFFFF8A65),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            remaining == 0 ? '再完成一次专注刷新奖励。' : '距离下一级还差 $remaining 能量',
           ),
           const SizedBox(height: 16),
           _InfoStrip(
@@ -214,34 +247,6 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
     );
   }
 
-  Widget _buildStarterPets(BuildContext context) {
-    return _Panel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _SectionTitle(
-            icon: Icons.pets_rounded,
-            title: '选择初始宠物',
-            subtitle: '三只原创程序化像素宠物，用于 demo 验证视觉方向。',
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _starterPets.map((pet) {
-              final selected = pet.id == _pet.petId;
-              return ChoiceChip(
-                selected: selected,
-                label: Text('${pet.name} · ${pet.trait}'),
-                onSelected: (_) => _selectPet(pet),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildFocusPanel(BuildContext context) {
     return _Panel(
       child: Column(
@@ -250,7 +255,7 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
           _SectionTitle(
             icon: Icons.timer_rounded,
             title: 'Soft-Focus 专注',
-            subtitle: '首版不做硬拦截，用全屏意图、温和确认和即时奖励减少分心。',
+            subtitle: '把手机放远一点，让宠物在小房间里陪你完成这一段。',
           ),
           const SizedBox(height: 12),
           SegmentedButton<int>(
@@ -274,14 +279,14 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
             duration: const Duration(milliseconds: 240),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: _isFocusing ? const Color(0xFF173C35) : const Color(0xFFEAF5EE),
+              color: _isFocusing ? const Color(0xFF4A3A5A) : const Color(0xFFFFF0C7),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: <Widget>[
                 Icon(
                   _isFocusing ? Icons.hourglass_bottom_rounded : Icons.spa_rounded,
-                  color: _isFocusing ? Colors.white : const Color(0xFF1B5E4F),
+                  color: _isFocusing ? Colors.white : const Color(0xFF7A4F1E),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -290,7 +295,7 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
                         ? '正在进行 $_selectedMinutes 分钟 soft-focus：把手机放远一点，宠物会陪你学习。'
                         : _message,
                     style: TextStyle(
-                      color: _isFocusing ? Colors.white : const Color(0xFF1B5E4F),
+                      color: _isFocusing ? Colors.white : const Color(0xFF7A4F1E),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -398,7 +403,7 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
               aspectRatio: 1,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF102E2A),
+                  color: const Color(0xFF5A3B63),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Padding(
@@ -553,24 +558,6 @@ class _FocusPetHomePageState extends State<FocusPetHomePage> {
     );
   }
 
-  void _selectPet(_StarterPet starterPet) {
-    if (_isFocusing) {
-      return;
-    }
-    setState(() {
-      _pet = PetProfile(
-        petId: starterPet.id,
-        name: starterPet.name,
-        level: 1,
-        energy: 0,
-        mood: PetMood.waiting,
-        decoration: '空书桌',
-        ownedPetIds: <String>[starterPet.id],
-      );
-      _message = '${starterPet.name} 已加入学习桌：${starterPet.trait}。';
-    });
-  }
-
   void _startFocus() {
     setState(() {
       _isFocusing = true;
@@ -652,11 +639,12 @@ class _Panel extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFCF7),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFFFDFB7)),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x1A000000),
+            color: Color(0x1A9B5B21),
             blurRadius: 18,
             offset: Offset(0, 8),
           ),
@@ -759,9 +747,9 @@ class _ShopTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFAF0),
+          color: const Color(0xFFFFF6E5),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFE9DDC5)),
+          border: Border.all(color: const Color(0xFFFFD2A1)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -815,18 +803,6 @@ class _ShopTile extends StatelessWidget {
       ),
     );
   }
-}
-
-class _StarterPet {
-  const _StarterPet({
-    required this.id,
-    required this.name,
-    required this.trait,
-  });
-
-  final String id;
-  final String name;
-  final String trait;
 }
 
 class _StatItem {

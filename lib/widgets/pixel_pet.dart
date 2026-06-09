@@ -18,7 +18,7 @@ class PixelPet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = _paletteForPet(petId);
-    final pixels = _pixelsForMood(mood);
+    final pixels = _pixelsForPet(petId, mood);
 
     return SizedBox.square(
       dimension: size,
@@ -31,26 +31,69 @@ class PixelPet extends StatelessWidget {
     );
   }
 
-  List<String> _pixelsForMood(String mood) {
-    final smile = mood == 'encouraging' ? '6' : '5';
-    final mouthLine = StringBuffer('1222')
-      ..write(smile)
-      ..write(smile)
-      ..write('222100');
-    return <String>[
-      '000111100000',
-      '001111110000',
-      '011222211000',
-      '112222221100',
-      '122323322100',
-      '122222222100',
-      mouthLine.toString(),
-      '011222211000',
-      '001444410000',
-      '000144100000',
-      '000100100000',
-      '001100110000',
+  List<String> _pixelsForPet(String petId, String mood) {
+    final mouth = mood == 'encouraging' ? '6' : '5';
+    final mouthLine = (StringBuffer('12222')
+      ..write(mouth)
+      ..write(mouth)
+      ..write('222221'))
+        .toString();
+    final base = <String>[
+      '00011000011000',
+      '00122111122100',
+      '01222222222210',
+      '12222222222221',
+      '12223322332221',
+      '12224422442221',
+      '12222222222221',
+      mouthLine,
+      '01222222222210',
+      '00122222222100',
+      '00012222221000',
+      '00011222211000',
+      '00110011001100',
+      '01100011000110',
     ];
+
+    if (petId == 'bean') {
+      return <String>[
+        '00001111110000',
+        '00012222221000',
+        '00122222222100',
+        '01222222222210',
+        '12223322332221',
+        '12224422442221',
+        '12222222222221',
+        mouthLine,
+        '01222222222210',
+        '00122222222100',
+        '00012222221000',
+        '00011222211000',
+        '00110011001100',
+        '01100011000110',
+      ];
+    }
+
+    if (petId == 'mochi') {
+      return <String>[
+        '00011111111000',
+        '00122222222100',
+        '01222222222210',
+        '12222222222221',
+        '12223322332221',
+        '12224422442221',
+        '12222222222221',
+        mouthLine,
+        '01222222222210',
+        '00122222222100',
+        '00012222221000',
+        '00011222211000',
+        '00110011001100',
+        '01100011000110',
+      ];
+    }
+
+    return base;
   }
 
   Map<String, Color> _paletteForPet(String petId) {
@@ -58,32 +101,32 @@ class PixelPet extends StatelessWidget {
       case 'mochi':
         return const <String, Color>{
           '0': Colors.transparent,
-          '1': Color(0xFF4B3D73),
-          '2': Color(0xFFE6D9FF),
-          '3': Color(0xFF2B2442),
-          '4': Color(0xFFFFC7D8),
-          '5': Color(0xFF8B5CF6),
-          '6': Color(0xFF6D5B8D),
+          '1': Color(0xFF6A4C93),
+          '2': Color(0xFFEBDDFE),
+          '3': Color(0xFF33234E),
+          '4': Color(0xFFFFA6C8),
+          '5': Color(0xFFB46CF2),
+          '6': Color(0xFF8C79A8),
         };
       case 'bean':
         return const <String, Color>{
           '0': Colors.transparent,
-          '1': Color(0xFF2F5D50),
-          '2': Color(0xFF9BE7C0),
-          '3': Color(0xFF12362D),
+          '1': Color(0xFF24745A),
+          '2': Color(0xFFA7F3C4),
+          '3': Color(0xFF123B2F),
           '4': Color(0xFFFFD166),
-          '5': Color(0xFF227C5A),
-          '6': Color(0xFF54786E),
+          '5': Color(0xFF20A66B),
+          '6': Color(0xFF6A8A7D),
         };
       default:
         return const <String, Color>{
           '0': Colors.transparent,
-          '1': Color(0xFF6A3B2A),
-          '2': Color(0xFFFFC078),
-          '3': Color(0xFF2E1A12),
-          '4': Color(0xFFFFE0A3),
-          '5': Color(0xFFE76F51),
-          '6': Color(0xFF9B6B4E),
+          '1': Color(0xFF8A4F2B),
+          '2': Color(0xFFFFC97A),
+          '3': Color(0xFF3A2418),
+          '4': Color(0xFFFF8FA3),
+          '5': Color(0xFFFF7A59),
+          '6': Color(0xFFB07752),
         };
     }
   }
